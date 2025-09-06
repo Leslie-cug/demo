@@ -1,9 +1,9 @@
 import gymnasium as gym
-from huggingface_sb3 import load_from_hub,  package_to_hub
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.evaluation import evaluate_policy
 
 """
 Lunarlander-v3
@@ -77,10 +77,17 @@ model = PPO("MlpPolicy", env, n_steps=1024, batch_size=64, n_epochs=4, gamma=0.9
 model_name = "ppo-LunarLander-v3"
 
 # train
-# model.learn(total_timesteps=100000) 
+model.learn(total_timesteps=1000000, progress_bar=True) 
 
 # save 
-# model.save(f"src/unit1/ckpt/{model_name}")
+model.save(f"src/unit1/ckpt/{model_name}")
 
 # load
-model = PPO.load(f"src/unit1/ckpt/{model_name}")
+# model = PPO.load(f"src/unit1/ckpt/{model_name}")
+
+"""
+Evaluate the agent
+"""
+eval_env = Monitor(gym.make("LunarLander-v3", render_mode='rgb_array'))
+mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
+print(f"mean_reward={mean_reward:.2f} +/- {std_reward}")
